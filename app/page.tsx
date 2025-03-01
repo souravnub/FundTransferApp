@@ -2,13 +2,20 @@ import AddAccountForm from "@/components/domains/account/AddAccountForm";
 import Header from "@/components/domains/layout/Header";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import prisma from "@/db";
 import { auth } from "@/lib/auth";
-import { ArrowLeftRight, Bell, CreditCard, DollarSign, HomeIcon, Menu, PieChart, Settings, User } from "lucide-react";
+import { getAllUserAccounts, getUser } from "@/actions/users";
+import { ArrowLeftRight, CreditCard, DollarSign, HomeIcon, Menu, PieChart, Settings, User } from "lucide-react";
 
 export default async function Home() {
     const session = await auth();
-    const user = await prisma.user.findFirst({ where: { id: session?.user?.id }, include: { accounts: true } });
+
+    if (!session?.user?.name) {
+        return "unauthorized";
+    }
+
+    const user = await getUser(session.user.name);
+    console.log(session.user.name);
+    const accounts = await getAllUserAccounts(session.user.name);
 
     if (!user) {
         return <span>No user found</span>;
@@ -30,8 +37,8 @@ export default async function Home() {
                                 <div className="flex items-baseline">
                                     <span className="text-3xl font-bold">
                                         $
-                                        {user.accounts
-                                            .reduce((psum, a) => psum + Number(a.balance), 0)
+                                        {accounts
+                                            ?.reduce((psum, a) => psum + Number(a.balance), 0)
                                             .toLocaleString("en-US", {
                                                 minimumFractionDigits: 2,
                                                 maximumFractionDigits: 2,
@@ -56,15 +63,14 @@ export default async function Home() {
                         </div>
 
                         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-                            {user.accounts.map((account) => {
-                                console.log(account);
+                            {accounts?.map((account) => {
                                 return (
-                                    <Card key={account.id} className="overflow-hidden">
+                                    <Card key={account.accNumber} className="overflow-hidden">
                                         <CardHeader className="pb-2">
                                             <CardTitle className="text-lg">{account.type}</CardTitle>
                                             <CardDescription>
-                                                {"*".repeat(account.accountNumber.length - 4)}
-                                                {account.accountNumber.slice(-4, account.accountNumber.length)}
+                                                {"*".repeat(account.accNumber.length - 4)}
+                                                {account.accNumber.slice(-4, account.accNumber.length)}
                                             </CardDescription>
                                         </CardHeader>
                                         <CardContent>

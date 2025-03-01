@@ -14,11 +14,11 @@ import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp
 import { Label } from "@/components/ui/label";
 import { REGEXP_ONLY_DIGITS } from "input-otp";
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { createAccount } from "@/actions/account";
 import { toast } from "sonner";
 import { AccountTypes } from "@prisma/client";
 import { Plus } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { createNewAccount } from "@/actions/accounts";
 
 const AddAccountForm = () => {
     const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -34,7 +34,7 @@ const AddAccountForm = () => {
         }
 
         setIsLoading(true);
-        const createAccountRes = await createAccount({ accountNumber: accNumber, accountType: accType });
+        const createAccountRes = await createNewAccount({ accNumber, accType });
         setIsLoading(false);
 
         if (createAccountRes.success) {
