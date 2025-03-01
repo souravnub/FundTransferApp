@@ -1,10 +1,10 @@
 import AddAccountForm from "@/components/domains/account/AddAccountForm";
 import Header from "@/components/domains/layout/Header";
-import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { auth } from "@/lib/auth";
 import { getAllUserAccounts, getUser } from "@/actions/users";
-import { ArrowLeftRight, CreditCard, DollarSign, HomeIcon, Menu, PieChart, Settings, User } from "lucide-react";
+import { DollarSign } from "lucide-react";
+import TransferBetweenAccountsForm from "@/components/domains/account/TransferBetweenAccountsForm";
 
 export default async function Home() {
     const session = await auth();
@@ -55,11 +55,7 @@ export default async function Home() {
                                 <h2 className="text-xl font-semibold">Your Accounts</h2>
                                 <AddAccountForm />
                             </div>
-                            <div className="flex gap-2">
-                                <Button variant="outline">
-                                    Transfer between accounts <ArrowLeftRight />
-                                </Button>
-                            </div>
+                            <TransferBetweenAccountsForm />
                         </div>
 
                         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
@@ -91,26 +87,6 @@ export default async function Home() {
                     </div>
                 </div>
             </main>
-            <nav className="border-t bg-white md:hidden">
-                <div className="flex items-center justify-around">
-                    <Button variant="ghost" className="flex flex-1 flex-col items-center justify-center gap-1 py-4">
-                        <HomeIcon className="h-5 w-5" />
-                        <span className="text-xs">Home</span>
-                    </Button>
-                    <Button variant="ghost" className="flex flex-1 flex-col items-center justify-center gap-1 py-4">
-                        <CreditCard className="h-5 w-5" />
-                        <span className="text-xs">Accounts</span>
-                    </Button>
-                    <Button variant="ghost" className="flex flex-1 flex-col items-center justify-center gap-1 py-4">
-                        <PieChart className="h-5 w-5" />
-                        <span className="text-xs">Insights</span>
-                    </Button>
-                    <Button variant="ghost" className="flex flex-1 flex-col items-center justify-center gap-1 py-4">
-                        <User className="h-5 w-5" />
-                        <span className="text-xs">Profile</span>
-                    </Button>
-                </div>
-            </nav>
         </div>
     );
 }
