@@ -65,7 +65,7 @@ const AddAccountForm = () => {
             <DialogContent className="sm:max-w-md">
                 <DialogHeader>
                     <DialogTitle>Add a new account</DialogTitle>
-                    <DialogDescription>** New accounts will start with a balance of 0</DialogDescription>
+                    <DialogDescription>** New accounts will start with a balance of $100</DialogDescription>
                 </DialogHeader>
                 <form className="space-y-4" onSubmit={handleAddAccount}>
                     <div className="space-y-1">

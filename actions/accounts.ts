@@ -15,7 +15,7 @@ export async function createNewAccount({ accNumber, accType }: { accNumber: stri
                 accHolder: session?.user?.name,
                 accNumber,
                 type: accType,
-                balance: 0,
+                balance: 100,
             },
         })
     );
@@ -31,7 +31,13 @@ export async function getAllAccountsForUser() {
     return accounts?.filter((acc) => acc.accHolder === session?.user?.name);
 }
 
-export async function transferFundsBetweenAccounts(data: { fromAccount: string; toAccount: string; amount: Number }) {
+export async function transferFunds(data: {
+    fromAccount: string;
+    toAccount: string;
+    amount: Number;
+    fromHolder: string;
+    toHolder: string;
+}) {
     const sqs = new SQS({
         region: process.env.REGION,
         credentials: {
@@ -41,4 +47,6 @@ export async function transferFundsBetweenAccounts(data: { fromAccount: string; 
     } as SQSClientConfig);
     const params: SendMessageCommandInput = { MessageBody: JSON.stringify(data), QueueUrl: process.env.QUEUE_URL };
     const response = await sqs.sendMessage(params);
+
+    revalidatePath("/");
 }

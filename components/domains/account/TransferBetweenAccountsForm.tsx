@@ -19,8 +19,9 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { ArrowLeftRight } from "lucide-react";
-import { getAllAccountsForUser, transferFundsBetweenAccounts } from "@/actions/accounts";
+import { getAllAccountsForUser, transferFunds } from "@/actions/accounts";
 import { toast } from "sonner";
+import { useSession } from "next-auth/react";
 
 const formSchema = z
     .object({
@@ -46,6 +47,7 @@ export default function TransferDialog() {
     const [open, setOpen] = useState(false);
     const [accounts, setAccounts] = useState<undefined | Record<string, any>[]>(undefined);
     const [loading, setLoading] = useState(false);
+    const { data: session } = useSession();
 
     async function fetchAccounts() {
         const fetchedAccounts = await getAllAccountsForUser();
@@ -67,17 +69,30 @@ export default function TransferDialog() {
     const fromAccount = accounts?.find((acc) => acc.accNumber === fromAccountNumber);
 
     async function onSubmit(values: z.infer<typeof formSchema>) {
+        if (!session) {
+            return "unauthorized";
+        }
         if (fromAccount?.balance <= values.amount) {
             return toast("Insufficient funds to transfer");
         }
 
         setLoading(true);
-        await transferFundsBetweenAccounts(values);
+
+        await transferFunds({
+            ...values,
+            fromHolder: session?.user?.name as string,
+            toHolder: session?.user?.name as string,
+        });
+
         toast("Transfer request has been initiated");
         setLoading(false);
 
         form.reset();
         setOpen(false);
+
+        setTimeout(() => {
+            fetchAccounts();
+        }, 1000);
     }
 
     return (
@@ -112,7 +127,7 @@ export default function TransferDialog() {
                                             {accounts?.map((account) => (
                                                 <SelectItem key={account.accNumber} value={account.accNumber}>
                                                     <div className="flex flex-col">
-                                                        <span>{account.type}</span>
+                                                        <span className="w-min">{account.type}</span>
                                                         <span className="text-xs text-muted-foreground">
                                                             {account.accNumber} · $
                                                             {account.balance.toLocaleString("en-US", {
@@ -151,7 +166,7 @@ export default function TransferDialog() {
                                             {accounts?.map((account) => (
                                                 <SelectItem key={account.accNumber} value={account.accNumber}>
                                                     <div className="flex flex-col">
-                                                        <span>{account.type}</span>
+                                                        <span className="w-min">{account.type}</span>
                                                         <span className="text-xs text-muted-foreground">
                                                             {account.accNumber}
                                                         </span>
