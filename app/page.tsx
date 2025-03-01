@@ -14,7 +14,7 @@ export default async function Home() {
     }
 
     const user = await getUser(session.user.name);
-    console.log(session.user.name);
+
     const accounts = await getAllUserAccounts(session.user.name);
 
     if (!user) {
