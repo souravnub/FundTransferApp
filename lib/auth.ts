@@ -33,6 +33,8 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         }),
     ],
     callbacks: {
+        /* eslint-disable @typescript-eslint/no-explicit-any */
+
         jwt: ({ token, user }: { user: any; token: any }) => {
             if (user && user.username) token.username = user.username;
 

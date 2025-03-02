@@ -49,6 +49,8 @@ export function TransferToUserForm({ amountInDefaultAcc }: { amountInDefaultAcc:
     const [open, setOpen] = useState(false);
     const [step, setStep] = useState<"form" | "confirm" | "success">("form");
     const [isSubmitting, setIsSubmitting] = useState(false);
+    /* eslint-disable @typescript-eslint/no-explicit-any */
+
     const [users, setUsers] = useState<any[] | undefined>(undefined);
     const [defaultAccOfCurrentUser, setDefaultAccOfCurrentUser] = useState<null | string>(null);
     const [recipientAccNumber, setRecipientAccNumber] = useState<string | null>(null);
@@ -91,6 +93,7 @@ export function TransferToUserForm({ amountInDefaultAcc }: { amountInDefaultAcc:
                 toast(`$${data.amount.toFixed(2)} has been sent to ${data.recipient}`);
             } catch (error) {
                 toast("An unknown error occurred");
+                console.error(error);
                 // Reset to form step on error
                 setStep("form");
             } finally {
@@ -123,7 +126,7 @@ export function TransferToUserForm({ amountInDefaultAcc }: { amountInDefaultAcc:
     useEffect(() => {
         const currentUserDefaultAccNumber = users?.find((acc) => acc.accHolder === session?.user?.name)?.accNumber;
         setDefaultAccOfCurrentUser(currentUserDefaultAccNumber);
-    }, [session, users?.length]);
+    }, [session, users]);
 
     return (
         <Dialog open={open} onOpenChange={handleOpenChange}>
