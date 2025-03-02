@@ -18,14 +18,34 @@ const formSchema = z
         username: z.string().min(3, {
             message: "Username must be at least 3 characters.",
         }),
-        password: z.string().min(4, {
-            message: "Password must be at least 4 characters.",
+        password: z.string().min(8, {
+            message: "Password must be at least 8 characters.",
         }),
         confirmPassword: z.string(),
     })
     .refine((data) => data.password === data.confirmPassword, {
         message: "Passwords don't match",
         path: ["confirmPassword"],
+    })
+    .superRefine(({ password }, checkPassComplexity) => {
+        /* eslint-disable @typescript-eslint/no-explicit-any */
+        const containsSpecialChar = (ch: any) => /[`!@#$%^&*()_\-+=\[\]{};':"\\|,.<>\/?~ ]/.test(ch);
+        let countOfNumbers = 0,
+            countOfSpecialChar = 0;
+
+        for (let i = 0; i < password.length; i++) {
+            const ch = password.charAt(i);
+            if (!isNaN(+ch)) countOfNumbers++;
+            else if (containsSpecialChar(ch)) countOfSpecialChar++;
+        }
+
+        if (countOfSpecialChar < 1 || countOfNumbers < 1) {
+            checkPassComplexity.addIssue({
+                code: "custom",
+                path: ["password"],
+                message: "Password must contain atleast\n1 special character\n1 number",
+            });
+        }
     });
 
 type FormValues = z.infer<typeof formSchema>;
