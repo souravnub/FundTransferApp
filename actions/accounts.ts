@@ -50,8 +50,8 @@ export async function transferFunds(data: {
     const sqs = new SQS({
         region: process.env.REGION,
         credentials: {
-            accessKeyId: process.env.AWS_ACCESS_KEY,
-            secretAccessKey: process.env.AWS_SECRET_KEY,
+            accessKeyId: process.env.APP_AWS_ACCESS_KEY,
+            secretAccessKey: process.env.APP_AWS_SECRET_KEY,
         },
     } as SQSClientConfig);
     const params: SendMessageCommandInput = { MessageBody: JSON.stringify(data), QueueUrl: process.env.QUEUE_URL };
