@@ -1,7 +1,6 @@
 import { auth } from "@/lib/auth";
 
 export default auth((req) => {
-    console.log(req.auth);
     // if is not loggedIn and is also not at /login or /signup, then push to login
     if (!req.auth && req.nextUrl.pathname !== "/login" && req.nextUrl.pathname !== "/signup") {
         const newUrl = new URL("/login", req.nextUrl.origin);

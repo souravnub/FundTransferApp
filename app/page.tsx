@@ -1,14 +1,24 @@
 import AddAccountForm from "@/components/domains/account/AddAccountForm";
 import Header from "@/components/domains/layout/Header";
-import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import prisma from "@/db";
 import { auth } from "@/lib/auth";
-import { ArrowLeftRight, Bell, CreditCard, DollarSign, HomeIcon, Menu, PieChart, Settings, User } from "lucide-react";
+import { getAllUserAccounts, getUser } from "@/actions/users";
+import { DollarSign } from "lucide-react";
+import TransferBetweenAccountsForm from "@/components/domains/account/TransferBetweenAccountsForm";
+import { Badge } from "@/components/ui/badge";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { TransferToUserForm } from "@/components/domains/account/TransferToUserForm";
 
 export default async function Home() {
     const session = await auth();
-    const user = await prisma.user.findFirst({ where: { id: session?.user?.id }, include: { accounts: true } });
+
+    if (!session?.user?.name) {
+        return "unauthorized";
+    }
+
+    const user = await getUser(session.user.name);
+
+    const accounts = await getAllUserAccounts(session.user.name);
 
     if (!user) {
         return <span>No user found</span>;
@@ -30,8 +40,8 @@ export default async function Home() {
                                 <div className="flex items-baseline">
                                     <span className="text-3xl font-bold">
                                         $
-                                        {user.accounts
-                                            .reduce((psum, a) => psum + Number(a.balance), 0)
+                                        {accounts
+                                            ?.reduce((psum, a) => psum + Number(a.balance), 0)
                                             .toLocaleString("en-US", {
                                                 minimumFractionDigits: 2,
                                                 maximumFractionDigits: 2,
@@ -48,23 +58,41 @@ export default async function Home() {
                                 <h2 className="text-xl font-semibold">Your Accounts</h2>
                                 <AddAccountForm />
                             </div>
-                            <div className="flex gap-2">
-                                <Button variant="outline">
-                                    Transfer between accounts <ArrowLeftRight />
-                                </Button>
+                            <div className="space-x-2">
+                                <TransferBetweenAccountsForm />
+                                <TransferToUserForm
+                                    amountInDefaultAcc={accounts?.find((acc) => acc.default === true)?.balance}
+                                />
                             </div>
                         </div>
 
                         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-                            {user.accounts.map((account) => {
-                                console.log(account);
+                            {accounts?.map((account) => {
                                 return (
-                                    <Card key={account.id} className="overflow-hidden">
+                                    <Card key={account.accNumber} className="overflow-hidden relative">
                                         <CardHeader className="pb-2">
+                                            {account.default && (
+                                                <TooltipProvider>
+                                                    <Tooltip>
+                                                        <TooltipTrigger asChild>
+                                                            <Badge
+                                                                variant={"outline"}
+                                                                className="absolute top-6 right-4 rounded-sm"
+                                                            >
+                                                                Default
+                                                            </Badge>
+                                                        </TooltipTrigger>
+                                                        <TooltipContent>
+                                                            <p>Funds sent by other users will be deposited here</p>
+                                                        </TooltipContent>
+                                                    </Tooltip>
+                                                </TooltipProvider>
+                                            )}
+
                                             <CardTitle className="text-lg">{account.type}</CardTitle>
                                             <CardDescription>
-                                                {"*".repeat(account.accountNumber.length - 4)}
-                                                {account.accountNumber.slice(-4, account.accountNumber.length)}
+                                                {"*".repeat(account.accNumber.length - 4)}
+                                                {account.accNumber.slice(-4, account.accNumber.length)}
                                             </CardDescription>
                                         </CardHeader>
                                         <CardContent>
@@ -85,26 +113,6 @@ export default async function Home() {
                     </div>
                 </div>
             </main>
-            <nav className="border-t bg-white md:hidden">
-                <div className="flex items-center justify-around">
-                    <Button variant="ghost" className="flex flex-1 flex-col items-center justify-center gap-1 py-4">
-                        <HomeIcon className="h-5 w-5" />
-                        <span className="text-xs">Home</span>
-                    </Button>
-                    <Button variant="ghost" className="flex flex-1 flex-col items-center justify-center gap-1 py-4">
-                        <CreditCard className="h-5 w-5" />
-                        <span className="text-xs">Accounts</span>
-                    </Button>
-                    <Button variant="ghost" className="flex flex-1 flex-col items-center justify-center gap-1 py-4">
-                        <PieChart className="h-5 w-5" />
-                        <span className="text-xs">Insights</span>
-                    </Button>
-                    <Button variant="ghost" className="flex flex-1 flex-col items-center justify-center gap-1 py-4">
-                        <User className="h-5 w-5" />
-                        <span className="text-xs">Profile</span>
-                    </Button>
-                </div>
-            </nav>
         </div>
     );
 }
