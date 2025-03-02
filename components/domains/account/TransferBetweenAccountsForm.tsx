@@ -45,6 +45,8 @@ const formSchema = z
 
 export default function TransferDialog() {
     const [open, setOpen] = useState(false);
+    /* eslint-disable @typescript-eslint/no-explicit-any */
+
     const [accounts, setAccounts] = useState<undefined | Record<string, any>[]>(undefined);
     const [loading, setLoading] = useState(false);
     const { data: session } = useSession();
@@ -106,7 +108,7 @@ export default function TransferDialog() {
                 <DialogHeader>
                     <DialogTitle>Transfer Funds</DialogTitle>
                     <DialogDescription>
-                        Move money between your accounts. Click submit when you're done.
+                        Move money between your accounts. Click submit when you are done.
                     </DialogDescription>
                 </DialogHeader>
                 <Form {...form}>

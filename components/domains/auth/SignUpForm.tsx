@@ -9,7 +9,6 @@ import { Input } from "@/components/ui/input";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { BankCard } from "@/components/domains/account/BankCard";
 import { createUser } from "@/actions/users";
-import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { signIn } from "next-auth/react";
 
@@ -34,7 +33,6 @@ type FormValues = z.infer<typeof formSchema>;
 export default function SignupForm() {
     const [username, setUsername] = useState("");
     const [accountNumber, setAccountNumber] = useState("");
-    const router = useRouter();
 
     // Initialize form
     const form = useForm<FormValues>({
