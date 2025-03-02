@@ -5,6 +5,9 @@ import { auth } from "@/lib/auth";
 import { getAllUserAccounts, getUser } from "@/actions/users";
 import { DollarSign } from "lucide-react";
 import TransferBetweenAccountsForm from "@/components/domains/account/TransferBetweenAccountsForm";
+import { Badge } from "@/components/ui/badge";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { TransferToUserForm } from "@/components/domains/account/TransferToUserForm";
 
 export default async function Home() {
     const session = await auth();
@@ -55,14 +58,37 @@ export default async function Home() {
                                 <h2 className="text-xl font-semibold">Your Accounts</h2>
                                 <AddAccountForm />
                             </div>
-                            <TransferBetweenAccountsForm />
+                            <div className="space-x-2">
+                                <TransferBetweenAccountsForm />
+                                <TransferToUserForm
+                                    amountInDefaultAcc={accounts?.find((acc) => acc.default === true)?.balance}
+                                />
+                            </div>
                         </div>
 
                         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
                             {accounts?.map((account) => {
                                 return (
-                                    <Card key={account.accNumber} className="overflow-hidden">
+                                    <Card key={account.accNumber} className="overflow-hidden relative">
                                         <CardHeader className="pb-2">
+                                            {account.default && (
+                                                <TooltipProvider>
+                                                    <Tooltip>
+                                                        <TooltipTrigger asChild>
+                                                            <Badge
+                                                                variant={"outline"}
+                                                                className="absolute top-6 right-4 rounded-sm"
+                                                            >
+                                                                Default
+                                                            </Badge>
+                                                        </TooltipTrigger>
+                                                        <TooltipContent>
+                                                            <p>Funds sent by other users will be deposited here</p>
+                                                        </TooltipContent>
+                                                    </Tooltip>
+                                                </TooltipProvider>
+                                            )}
+
                                             <CardTitle className="text-lg">{account.type}</CardTitle>
                                             <CardDescription>
                                                 {"*".repeat(account.accNumber.length - 4)}

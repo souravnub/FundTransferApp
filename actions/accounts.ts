@@ -31,6 +31,14 @@ export async function getAllAccountsForUser() {
     return accounts?.filter((acc) => acc.accHolder === session?.user?.name);
 }
 
+export async function getDefaultAccountsOfUsers() {
+    const res = await dbClient.send(new ScanCommand({ TableName: "accounts" }));
+    return res.Items?.filter((acc) => acc.default === true)?.map((acc) => ({
+        accNumber: acc.accNumber,
+        accHolder: acc.accHolder,
+    }));
+}
+
 export async function transferFunds(data: {
     fromAccount: string;
     toAccount: string;
@@ -38,6 +46,7 @@ export async function transferFunds(data: {
     fromHolder: string;
     toHolder: string;
 }) {
+    console.log(data);
     const sqs = new SQS({
         region: process.env.REGION,
         credentials: {

@@ -1,6 +1,6 @@
 "use server";
 import { dbClient } from "@/dynamoDbConfig";
-import { GetCommand, PutCommand, ScanCommand, TransactWriteCommand } from "@aws-sdk/lib-dynamodb";
+import { GetCommand, PutCommand, QueryCommand, ScanCommand, TransactWriteCommand } from "@aws-sdk/lib-dynamodb";
 import bcrypt from "bcryptjs";
 
 export async function getUser(username: string) {
@@ -14,6 +14,7 @@ export async function getAllUserAccounts(username: string) {
     });
     return accounts;
 }
+
 export async function createUser(data: { username: string; password: string; accNumber: string }) {
     const user = await dbClient.send(new GetCommand({ TableName: "users", Key: { username: data.username } }));
     if (user.Item) {
@@ -43,6 +44,7 @@ export async function createUser(data: { username: string; password: string; acc
                             accHolder: data.username,
                             balance: 100,
                             type: "SAVINGS",
+                            default: true,
                         },
                     },
                 },
